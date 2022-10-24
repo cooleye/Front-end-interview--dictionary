@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        其他内容
+        <h1>{{num}}</h1>
+        <h1>{{title}}</h1>
+        其他内容
+    </div>
+    <script>
+        function Vue(option) {
+
+            let app = document.querySelector(option.el)
+
+            let data = option.data
+
+            for (let key in data) {
+                Object.defineProperty(this, key, {
+                    get() {
+                        console.log("get")
+                        return data[key]
+                    },
+                    set(val) {
+                        console.log("set")
+                        data[key] = val
+                        render(key,val)
+                    }
+                })
+            }
+
+            // 更新视图
+            function render(key,val){
+                console.log("更新。。。",key,val)
+                let html = app.innerHTML;
+                console.log(html);
+                html = html.replace(`{{${key}}}`,val)
+               app.innerHTML = html
+            }
+        }
+
+
+        let app = new Vue({
+            el: "#app",
+            data: {
+                num: 100,
+                title: "hello"
+            }
+        })
+
+        console.log(app)
+    </script>
+</body>
+
+</html>

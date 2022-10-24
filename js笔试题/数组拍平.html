@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        var arr = [1, 2,[3, 4,[5,6,[7,8,[9,10],[11,12],[13,14,[15,16,[17,18]]]]]]]
+
+        // flat方法可以扁平化，Infinity： 深度遍历
+        // arr.flat(Infinity)
+
+        // 自定义数组扁平化函数
+        function flatArr(arr){
+
+            let temp = []
+            
+            function farr(arr){
+                for(let i = 0;i < arr.length;i++){
+                    let item = arr[i]
+                    // 判断元素类型，如果是数组，则递归，如果是基本类型，添加到新数组中
+                    if(Array.isArray(item)){
+                        farr(item)
+                    }else{
+                        temp.push(item)
+                    }
+                }
+            }
+            farr(arr)
+            return temp
+            
+            // return 
+
+        }
+
+       let res =  flatArr(arr)
+       console.log("res:",res)
+       
+    </script>
+</body>
+
+</html>

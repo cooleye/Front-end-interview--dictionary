@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        class Node {
+            constructor(val) {
+                //节点的数据
+                this.val = val;
+                //指向下一个节点的指针
+                this.next = null;
+            }
+        }
+
+        let head = new Node(1)
+        head.next = new Node(2)
+        head.next.next = new Node(3)
+        head.next.next.next = new Node(4)
+
+        // 遍历链表
+        // let current = head
+        // while (current) {
+        //     console.log(current.val)
+        //     current = current.next
+        // }
+
+        console.log(head)
+
+        // let current = head;
+        // let pervious;
+        // while (current.val < 3) {
+        //     pervious = current;
+        //     current = current.next;
+        // }
+        // let node = new Node(3);
+        // pervious.next = node
+        // node.next = current;
+
+        // console.log(head)
+
+
+        let node = new Node(2)
+        let current = head;
+        while (current.val != node.val) {
+            pervious = current;
+            current = current.next;
+            nextNode = current.next;
+        }
+        pervious.next = nextNode
+
+        console.log(head)
+    </script>
+</body>
+
+</html>

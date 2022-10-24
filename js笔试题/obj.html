@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        let str = '{"a":[{"b":"c"},"d"],"x":1}'
+
+        // 实现get函数
+        function get(str, arg) {
+
+            // let json = JSON.parse(str)
+
+            // return json.a[0].b
+            // return json["a"][0].b
+
+            let fn =  new Function(`return ${str}.${arg}`)
+
+            return fn()
+            
+        }
+
+        console.log(get(str, "a[0].b")) // c
+        console.log(get(str,"a[1]")) //  d
+        console.log(get(str,"x")) // 1
+
+
+
+        // function add(){}
+        // const fn = function(){}
+        // new Function()
+
+
+        /* 
+        
+            function fn(){
+                console.log(123)
+            }
+        */
+        // let fn = new Function("console.log(123)")
+        // fn()
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="box"></div>
+    <script>
+
+        //fulfilled rejected  padding
+        function getImg(url) {
+            return new Promise((resolve, reject) => {
+
+                // 执行异步操作
+                let img = new Image()
+                img.src = url
+                // img.onload = function () {
+                //     resolve(img)
+                // }
+                // reject(100)
+            })
+        }
+
+       console.log( getImg("./cate.png"))
+   
+   
+        // getImg("./cate.png")
+        // .then(res =>{
+        //     console.log(res)
+        //     document.querySelector("#box").appendChild(res)
+        // })
+        // .then(()=>{
+        //    return getImg("./phone.png")
+        // })
+        // .then(res =>{
+        //     console.log(res)
+        //     document.querySelector("#box").appendChild(res)
+        // })
+
+        // ES7 async await
+
+        
+        async function fn(){
+            let img1 =  await  getImg("./cate.png")
+            document.querySelector("#box").appendChild(img1)
+
+            let img2 =  await  getImg("./phone.png")
+            document.querySelector("#box").appendChild(img2)
+
+            let img3 =  await  getImg("./cart.png")
+            document.querySelector("#box").appendChild(img3)
+
+        }
+
+        fn()
+        
+
+   
+   </script>
+</body>
+
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <p id="question"></p>
+    <button id="start"> 开始 </button>
+    <script>
+        var arr = [1, 2, 3, 4, 5]
+
+        let isStart = false;
+        const startbtn = document.querySelector("#start")
+        const question = document.querySelector("#question")
+        let timer = null;
+        let currentIndex;
+        startbtn.onclick = function () {
+
+            if (arr.length) {
+                if (!isStart) {
+                    startbtn.innerHTML = "停止";
+
+                    // 开始随机
+                    timer = setInterval(() => {
+                        let index = Math.floor(Math.random() * arr.length)
+                        question.innerHTML = arr[index]
+                        currentIndex = index;
+                    }, 50)
+
+                    isStart = !isStart;
+
+                } else {
+                    startbtn.innerHTML = "开始";
+                    clearInterval(timer)
+                    isStart = !isStart;
+                    arr.splice(currentIndex, 1)
+                }
+            }else{
+                startbtn.innerHTML = "今天的练习已经完成";
+            }
+
+        }
+    </script>
+</body>
+
+</html>
