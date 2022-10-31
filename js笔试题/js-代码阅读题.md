@@ -1,5 +1,6 @@
 下列控制台都输出什么
-第1题：
+
+### 第1题：
 
 ```js
 function setName(){
@@ -10,7 +11,8 @@ console.log(name);
 ```
 
 答案："张三"
-第2题：
+
+### 第2题：
 
 ```js
 //考点：1、变量声明提升 2、变量搜索机制
@@ -23,7 +25,8 @@ test();
 ```
 
 答案：undefined
-第3题：
+
+### 第3题：
 
 ```js
 var b=2;
@@ -35,7 +38,8 @@ test2();
 ```
 
 答案：3
-第4题：
+
+### 第4题：
 
 ```js
 c=5;//声明一个全局变量c
@@ -48,7 +52,7 @@ function test3(){
 test3();
 ```
 
-第5题：
+### 第5题：
 
 ```js
 var arr = [];
@@ -59,7 +63,7 @@ alert(arr.length);	//答案：11
 console.log(arr[5]);	//答案：undefined
 ```
 
-第6题：
+### 第6题：
 
 ```js
 var a=1;
@@ -67,7 +71,7 @@ console.log(a++);		//答案：1
 console.log(++a);		//答案：3
 ```
 
-第7题：
+### 第7题：
 
 ```js
 console.log(null==undefined);	//答案：true
@@ -75,7 +79,7 @@ console.log("1"==1);		//答案：true，因为会将数字1先转换为字符串
 console.log("1"===1);		//答案：false，因为数据类型不一致
 ```
 
-第8题：
+### 第8题：
 
 ```js
 typeof 1;		"number"
@@ -88,16 +92,16 @@ typeof [1,2,3];		"object"
 typeof function(){};	//"function"
 ```
 
-第9题：
+### 第9题：
 
 ```js
 parseInt(3.14);			//3
 parseFloat("3asdf");		//3
-parseInt("1.23abc456");
-parseInt(true);//"true" NaN
+parseInt("1.23abc456"); //1
+parseInt(true);// NaN
 ```
 
-第10题：
+### 第10题：
 
 ```js
 
@@ -111,7 +115,9 @@ function bar() {
 alert(typeof bar());//"function"
 ```
 
-第11题：考点：函数声明提前
+### 第11题：
+
+考点：函数声明提前
 
 ```js
 
@@ -125,7 +131,7 @@ bar();
 alert(foo);//答案：1
 ```
 
-第12题：
+### 第12题：
 
 ```js
 
@@ -135,7 +141,7 @@ function a(){}
 console.log(a);////3
 ```
 
-第13题：
+### 第13题：
 
 ```js
 
@@ -147,7 +153,7 @@ function foo(a) {
 foo(1);
 ```
 
-第14题：
+### 第14题：
 
 ```js
 
@@ -157,7 +163,7 @@ function foo(a) {
 foo(1, 2, 3);
 ```
 
-第15题
+### 第15题
 
 ```js
 
@@ -173,7 +179,9 @@ console.log(foo.toString());
 bar();//报错
 ```
 
-第16题：以下执行会有什么输出
+### 第16题：
+
+以下执行会有什么输出
 
 ```js
 function test(){
@@ -188,3 +196,41 @@ test();
 结果：
 test函数
 定时器回调函数
+
+### 第17题：
+
+以下执行会有什么输出
+
+```javascript
+console.log('1');
+setTimeout(function () {
+  console.log('2');
+}, 0);
+new Promise((resolve) => {
+  console.log('3')
+  resolve()
+}).then(function () {
+  console.log('4');
+}).then(function () {
+  console.log('5');
+});
+console.log('6');
+    // 136452
+```
+
+
+
+```js
+ let str = "hello"
+        let obj = {
+            str:"world",
+            say(){
+                setTimeout(() => {
+                    console.log(this.str)
+                }, 0);
+            }
+        }
+
+        obj.say()
+```
+
