@@ -1,0 +1,581 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>4.vue篇</title>
+</head>
+<body><h1 id='vue篇'>VUE篇</h1>
+<h3 id='1谈谈你对vue的理解或者问vue的优点有哪些'>1、谈谈你对vue的理解，或者问vue的优点有哪些？</h3>
+<ul>
+<li>vue是一个轻量级框架：只关注视图层，大小只有几十 <code>kb</code> ；</li>
+<li>简单易学：国人开发，中文文档，不存在语言障碍 ，易于理解和学习；</li>
+<li>双向数据绑定、有指令系统，在数据操作方面非常简单；</li>
+<li>支持定义组件化，在构建单页应用方面有优势；</li>
+<li>视图，数据，结构分离，很容易就能修改数据</li>
+<li>内部采用了虚拟DOM：<code>dom</code> 操作是非常耗费性能的，不再使用原生的 <code>dom</code> 操作节点，极大解放 <code>dom</code> 操作，但底层还是避免不了操作DOM的。</li>
+<li>再就是运行速度更快。</li>
+
+</ul>
+<p>&nbsp;</p>
+<h3 id='2v-if和v-show区别'>2、v-if和v-show区别</h3>
+<p>v-if 是真正的条件渲染，因为它会创建和销毁元素或者组件，所以会触发组件的生命周期。</p>
+<p>v-show 就简单得多——不管初始条件是什么，元素总是会被渲染，并且只是简单地基于 CSS 的 “display” 属性进行切换。</p>
+<p>所以，v-if 适用于在运行时很少改变条件，不需要频繁切换条件的场景；v-show 则适用于需要非常频繁切换条件的场景。</p>
+<p>&nbsp;</p>
+<h3 id='3vue初始化过程或者new-vue发生了什么'>3、Vue初始化过程或者new Vue发生了什么</h3>
+<ul>
+<li><p><code>new Vue</code>的时候调用会调用<code>_init</code>方法</p>
+<ul>
+<li>定义 <strong><code>$set</code></strong>、<strong><code>$watch</code></strong>、<code>$get</code> 、<code>$delete</code>、 等方法</li>
+<li>定义 <code>$on</code>、<code>$off</code>、<code>$emit</code>、<code>$off</code>等事件</li>
+<li>定义 <code>_update</code>、<code>$forceUpdate</code>、<code>$destroy</code>生命周期</li>
+
+</ul>
+</li>
+<li><p>调用<code>$mount</code>进行页面的挂载</p>
+</li>
+<li><p>挂载的时候主要是通过<code>mountComponent</code>方法</p>
+</li>
+<li><p>定义<code>updateComponent</code>更新函数</p>
+</li>
+<li><p>执行<code>render</code>生成虚拟<code>DOM</code></p>
+</li>
+<li><p><code>_update</code>将虚拟<code>DOM</code>生成真实<code>DOM</code>结构，并且渲染到页面中</p>
+</li>
+
+</ul>
+<p>&nbsp;</p>
+<h3 id='4vue实例挂载的过程中发生了什么'>4、Vue实例挂载的过程中发生了什么?</h3>
+<p>挂载过程指的是app.mount()过程，这个过程中整体上做了两件事：<strong>初始化</strong>和<strong>建立更新机制</strong></p>
+<p>初始化会创建组件实例、初始化组件状态，创建各种响应式数据</p>
+<p>建立更新机制这一步会立即执行一次组件更新函数，这会首次执行组件渲染函数并执行patch将前面获得vnode转换为dom；同时首次执行渲染函数会创建它内部响应式数据之间和组件更新函数之间的依赖关系，这使得以后数据变化时会执行对应的更新函数。</p>
+<p>&nbsp;</p>
+<h3 id='5可以把vue挂载到body或者根元素上吗'>5、可以把vue挂载到body或者根元素上吗？</h3>
+<p>不可以，只能挂载到普通元素上。</p>
+<p>是因为所谓的挂载其实是替换，而不是插入。</p>
+<p>把数据渲染到视图上，然后替换掉要挂载的元素。</p>
+<p>如果挂载到body上，那body就被替换掉了。页面没有body自然就不对了。</p>
+<p>&nbsp;</p>
+<blockquote><h4 id='如果非要挂载到body上怎么办'>如果非要挂载到body上，怎么办？</h4>
+<p>也不是不可以。比如我之前自定义过对话框组件（dialog组件），需要做一个覆盖全屏的遮罩层，这个遮罩层是固定定位，希望参照的父元素时body。所以要挂载到body下。</p>
+<p>解决办法就是在mouted生命周期里，手动的吧this.$el 添加到body下。</p>
+<pre><code>document.body.appendChild(this.$el);
+</code></pre>
+<p>然后在组件销毁前再从body上移除</p>
+<pre><code>document.body.removeChild(this.$el);
+</code></pre>
+</blockquote>
+<h3 id='6请描述下你对vue生命周期的理解'>6、请描述下你对vue生命周期的理解？</h3>
+<p><strong>beforeCreate（创建前）</strong>：这时候几乎啥也访问不到，比如data啊、props、方法啊，this</p>
+<p><strong>created（创建后）</strong> ：可以发访问到data，但不能访问到 <code>$el</code> 属性。可以在这里做ajax</p>
+<p><strong>beforeMount（挂载前）</strong>：这时候会编译模板，把data里面的数据和模板生成html。但还没有挂载html到页面上。</p>
+<p><strong>mounted（挂载后）</strong>：编译好的html内容更新到html 页面上了。可以获取到DOM节点了。</p>
+<p><strong>beforeUpdate（更新前）</strong>：数据更新了，但是视图还没有更新</p>
+<p><strong>updated（更新后）</strong> ：数据更了，视图也更新了。</p>
+<p><strong>beforeDestroy（销毁前）</strong>：实例销毁之前调用，this能获取到实例，通常在这里取消事件绑定</p>
+<p><strong>destroyed（销毁后）</strong>：实例销毁后调用，事件监听会被移除，子实例也会被销毁。</p>
+<p>&nbsp;</p>
+<h3 id='7v-if和v-for的优先级是什么'>7、v-if和v-for的优先级是什么？</h3>
+<p>实践中<strong>不应该把v-for和v-if放一起</strong></p>
+<p>在<strong>vue2中</strong>，<strong>v-for的优先级是高于v-if</strong>，把它们放在一起，输出的渲染函数中可以看出会先执行循环再判断条件，哪怕我们只渲染列表中一小部分元素，也得在每次重渲染的时候遍历整个列表，这会比较浪费；另外需要注意的是在<strong>vue3中则完全相反，v-if的优先级高于v-for</strong>，所以v-if执行时，它调用的变量还不存在，就会导致异常</p>
+<p>通常有两种情况下导致我们这样做：</p>
+<ul>
+<li>为了<strong>过滤列表中的项目</strong> (比如 <code>v-for=&quot;user in users&quot; v-if=&quot;user.isActive&quot;</code>)。此时定义一个计算属性 (比如 <code>activeUsers</code>)，让其返回过滤后的列表即可（比如<code>users.filter(u=&gt;u.isActive)</code>）。</li>
+<li>为了<strong>避免渲染本应该被隐藏的列表</strong> (比如 <code>v-for=&quot;user in users&quot; v-if=&quot;shouldShowUsers&quot;</code>)。此时把 <code>v-if</code> 移动至容器元素上 (比如 <code>ul</code>、<code>ol</code>)或者外面包一层<code>template</code>即可。</li>
+
+</ul>
+<p>文档中明确指出<strong>永远不要把 <code>v-if</code> 和 <code>v-for</code> 同时用在同一个元素上</strong>，显然这是一个重要的注意事项。</p>
+<p>源码里面关于代码生成的部分，能够清晰的看到是先处理v-if还是v-for，顺序上vue2和vue3正好相反，因此产生了一些症状的不同，但是不管怎样都是不能把它们写在一起的。</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3 id='8对-spa-单页面的理解它的优缺点分别是什么'>8、对 SPA 单页面的理解，它的优缺点分别是什么？</h3>
+<p>SPA（ single-page application ）就是单页面应用。也就是整个应用只有一个HTML文件，然后页面跳转也是在页面内部通过js来实现的，不会跳转到其他HTML页面。</p>
+<p><strong>优点：</strong></p>
+<ul>
+<li>用户体验好、快，内容的改变不需要重新加载整个页面</li>
+<li>对服务器压力小；</li>
+<li>前后端职责分离，架构清晰，前端进行交互逻辑，后端负责数据处理；</li>
+
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>首屏加载慢，因为第一次还是要加载很多文件，包括js啊，css啊（解决办法看下一题）</li>
+<li>单页应用在一个页面中显示所有的内容，所以不能使用浏览器的前进后退功能，所有的页面切换需要自己建立堆栈管理；</li>
+<li>不利于SEO，页面内容是js生成的，爬虫不容爬取到。（解决办法看SSR）</li>
+
+</ul>
+<p>&nbsp;</p>
+<h3 id='9spa首屏加载速度慢的怎么解决'>9、SPA首屏加载速度慢的怎么解决？</h3>
+<p>减少首屏加载的文件，对一些不需要在首屏显示的文件不去加载，对于图片可以用懒加载。</p>
+<p>还有就是用服务端渲染，即能解决加载慢的问题，还能解决SEO的问题。</p>
+<p>&nbsp;</p>
+<h3 id='10ssrserver-side-render）解决了什么问题有做过ssr吗你是怎么做的'>10、SSR（Server Side Render）解决了什么问题？有做过SSR吗？你是怎么做的？</h3>
+<p>SSR也就是服务端渲染，也就是将Vue在客户端的渲染工作放在服务端完成，然后再把html直接返回给客户端</p>
+<p>SSR的优势：</p>
+<ul>
+<li>更好的SEO</li>
+<li>首屏加载速度更快</li>
+
+</ul>
+<p>SSR的缺点：</p>
+<ul>
+<li>开发条件会受到限制，服务器端渲染只支持beforeCreate和created两个钩子；</li>
+<li>需要处于Node.js的运行环境；</li>
+<li>会加大服务端的负载。</li>
+
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3 id='11为什么data属性是一个函数而不是一个对象'>11、为什么data属性是一个函数而不是一个对象？</h3>
+<p>因为在js中的对象是引用类型的数据，当多个实例引用同一个对象时，只要一个实例对这个对象进行操作，其他实例中的数据也会发生变化。</p>
+<p>而在Vue中，更多的是想要复用组件，那就需要每个组件都有自己的数据，这样组件之间才不会相互干扰。</p>
+<p>所以组件的数据不能写成对象的形式，而是要写成函数的形式,当每次复用组件的时候，就会返回一个新的data，也就是说每个组件都有自己的私有数据空间，它们各自维护自己的数据，不会干扰其他组件的正常运行。</p>
+<p>&nbsp;</p>
+<h3 id='12动态给vue的data添加一个新的属性时会发生什么怎样解决'>12、动态给vue的data添加一个新的属性时会发生什么？怎样解决？</h3>
+<p>视图不会更新</p>
+<p>可以使用<strong>$set()</strong></p>
+<blockquote><p>原因是： vue的数据响应式原理是，在初始化的时候，会通过数据劫持的方式Object.defefineProperty来给对象的属性，添加监听，这样当data的属性发送变化时，就可以监听到，进而更新视图。</p>
+<p>但是之后动态添加的属性，没有经过劫持，那么新的属性的变化就不会引起视图的更新。</p>
+<p>而$set方法，内部会 调用Object.defefineProperty，来去监听新的属性。</p>
+</blockquote>
+<p>&nbsp;</p>
+<h3 id='vue中组件和插件有什么区别'>Vue中组件和插件有什么区别？</h3>
+<ul>
+<li><p>在vue中，组件是把结构、样式和功能封装到一起的模块，比如按钮组件、轮播图等。</p>
+</li>
+<li><p>插件通常用来为 <code>Vue</code> 添加全局功能，比如路由啊，vuex状态管理啊</p>
+<p>&nbsp;</p>
+</li>
+
+</ul>
+<h3 id='14vue组件之间的通信方式都有哪些'>14、Vue组件之间的通信方式都有哪些？</h3>
+<ul>
+<li>父组件传给子组件用<strong>prop</strong></li>
+<li>子组件传给父组件用自定义事件 <strong>$emit</strong>,其实也可以用prop，就是父组件先传给子组件一个回调函数，子组件调用回调把参数传给父组件。</li>
+<li>跨组件可以用<strong>event bus</strong>，<strong>Vue.observable</strong></li>
+<li>在就是用<strong>vuex</strong></li>
+
+</ul>
+<p>&nbsp;</p>
+<h3 id='15双向数据绑定是什么或者问vue中数据绑定的原理是什么'>15、双向数据绑定是什么，或者问vue中数据绑定的原理是什么？</h3>
+<p>Vue.js 是采用<strong>数据劫持</strong>结合<strong>发布者-订阅者模式</strong>的方式，通过<strong>Object.defineProperty()</strong>来劫持各个属性的setter，getter，在数据变动时发布消息给订阅者，触发相应的监听回调。</p>
+<p>&nbsp;</p>
+<h3 id='使用-objectdefineproperty-来进行数据劫持有什么缺点'>使用 Object.defineProperty() 来进行数据劫持有什么缺点？</h3>
+<p>在对一些属性进行操作时，使用这种方法无法拦截，比如通过下标方式修改数组数据或者给对象新增属性，这都不能触发组件的重新渲染，因为 Object.defineProperty 不能拦截到这些操作，只是 Vue 内部通过重写函数的方式解决了这个问题。</p>
+<p>在 Vue3.0 中已经不使用这种方式了，而是通过使用 Proxy 对对象进行代理，从而实现数据劫持。使用Proxy 的好处是它可以监听到任何方式的数据改变，唯一的缺点是兼容性的问题，因为 Proxy 是 ES6 的语法。</p>
+<p>&nbsp;</p>
+<h3 id='17vue中的nexttick有什么作用'>17、Vue中的$nextTick有什么作用？</h3>
+<ul>
+<li><p>在数据变化后执行的某个操作，而这个操作需要用到更新之后的DOM结构，那这个操作就需要放到<code>nextTick()</code>的回调函数中。</p>
+</li>
+<li><p>它原理其实就是把这个操作放到一个异步任务中去。他内部会先采用微任务，比如<strong>Promise</strong>实现，不行的话改成<strong>setTimeout</strong>（宏任务）。</p>
+<blockquote><h4 id='又或者问你想在created生命周期中做dom操作怎么办'>又或者问你：想在created生命周期中做DOM操作怎么办？</h4>
+<p>在vue生命周期中，如果在created()钩子进行DOM操作，也一定要放在<code>nextTick()</code>的回调函数中。</p>
+<p>因为在created()钩子函数中，页面的DOM还未渲染，这时候也没办法操作DOM，所以，此时如果想要操作DOM，必须将操作的代码放在<code>nextTick()</code>的回调函数中。</p>
+</blockquote>
+</li>
+
+</ul>
+<p>&nbsp;</p>
+<h3 id='18说说你对vue的mixin的理解有什么应用场景'>18、说说你对vue的mixin的理解，有什么应用场景？</h3>
+<p>mixin可以让组件之间的部分代码重用</p>
+<p>如果希望在多个组件之间重用一组组件选项，例如生命周期 、 方法等，则可以将其编写为 mixin，并在组件中引用。然后 mixin 的内容就会合并到组件中。</p>
+<p>&nbsp;</p>
+<h3 id='说说你对slot的理解slot使用场景有哪些'>说说你对slot的理解？slot使用场景有哪些？</h3>
+<p>slot就是插槽，用来做组件嵌套的。通过插槽，可以告诉子组件放在父组件的什么位置。</p>
+<p>包括匿名插槽（默认），具名插槽还有作用域插槽。</p>
+<blockquote><p>具名插槽，在组件内，给多个slot设置name属性，然后使用的时候，在template标签上，用v-slot来指定slot名称。</p>
+<p>作用域插槽，可以实现组件向插槽内的组件或元素传递数据。</p>
+</blockquote>
+<p>&nbsp;</p>
+<h3 id='20vueobservable你有了解过吗说说看'>20、Vue.observable你有了解过吗？说说看</h3>
+<p>有点类似vuex，可以做状态管理。</p>
+<p><code>Vue.observable</code>，让一个对象变成响应式数据。<code>Vue</code> 内部会用它来处理 <code>data</code> 函数返回的对象。</p>
+<p>它里面的数据发生变化时，会触发视图的更新。可以用来做跨组件的通信。</p>
+<p>&nbsp;</p>
+<h3 id='21有没有阅读过vue源码'>21/有没有阅读过vue源码？</h3>
+<p>看过一点，大概了解<strong>vue初始过程</strong>和<strong>数据响应的原理</strong></p>
+<p><a href='https://www.imooc.com/article/18133'>阅读源码后对VUE的理解~</a></p>
+<p>&nbsp;</p>
+<h3 id='22你知道vue中key的原理吗说说你对它的理解'>22、你知道vue中key的原理吗？说说你对它的理解</h3>
+<ol start='' >
+<li>让vue精准的追踪到每一个元素，<code>高效的更新虚拟DOM</code>。</li>
+<li>触发过渡</li>
+
+</ol>
+<pre><code class='language-css' lang='css'>&lt;transition&gt;
+  &lt;span :key=&quot;text&quot;&gt;{{ text }}&lt;/span&gt;
+&lt;/transition&gt;
+复制代码
+</code></pre>
+<p>当text改变时，这个元素的key属性就发生了改变，在渲染更新时，Vue会认为这里新产生了一个元素，而老的元素由于key不存在了，所以会被删除，从而触发了过渡。</p>
+<p><a href='https://juejin.cn/post/7097067108663558151#heading-65'>key的原理分析</a></p>
+<p>&nbsp;</p>
+<h3 id='说说你对keep-alive的理解是什么或者问怎么缓存当前组件'>说说你对keep-alive的理解是什么？或者问，怎么缓存当前组件</h3>
+<p>如果需要在组件切换的时候，保存一些组件的状态防止多次渲染，就可以使用 keep-alive 组件包裹需要保存的组件。</p>
+<p>&nbsp;</p>
+<p>可以使用<strong>keep-alive</strong></p>
+<p>&nbsp;</p>
+<h3 id='24vue常用的修饰符有哪些有什么应用场景'>24、Vue常用的修饰符有哪些有什么应用场景</h3>
+<blockquote><p>简单或，只说修饰符的名称就行，详细说的话，解释下用法和作用是什么</p>
+</blockquote>
+<p>修饰符是加载事件绑定或者v-model指令后的，包括：</p>
+<p><code>.stop</code>：等同于 JavaScript 中的 <code>event.stopPropagation()</code> ，阻止事件冒泡；</p>
+<p><code>.prevent</code> ：等同于 JavaScript 中的 <code>event.preventDefault()</code> ，阻止默认事件</p>
+<p><code>.capture</code> ：与事件冒泡的方向相反，事件捕获由外到内；</p>
+<p><code>.self</code> ：只会触发自己范围内的事件，不包含子元素；</p>
+<p><code>.once</code> ：只会触发一次。</p>
+<p><code>.number</code>把输入框输入的数值型字符串转成数字</p>
+<p><code>.trim</code>去除收尾空格</p>
+<p><code>.lazy</code>把<code>v-model</code>默认的<code>input</code>事件换成<code>change</code>事件</p>
+<p>还有按键修饰符，比如<code>.enter</code>,当按回车键在触发事件等。</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3 id='你有写过自定义指令吗自定义指令的应用场景有哪些'>你有写过自定义指令吗？自定义指令的应用场景有哪些？</h3>
+<p>在vue中，<strong>需要做DOM操作，可以定义指令</strong>。</p>
+<p>定义指令有两种方式，<strong>全局指令和组件内的局部指令</strong>。</p>
+<p>比如定义全局指令，通过<strong>Vue.directive()</strong>来定义。</p>
+<p>参数是<strong>指令名称</strong>和一个<strong>对象</strong>或者是回调函数。</p>
+<p>在这个对象中是一些<strong>钩子函数，有bind，inserted</strong>、update、unbind等。</p>
+<p>在钩子函数中可以获取到使用指令的<strong>元素el</strong>和和<strong>绑定在指令上的值</strong>。</p>
+<p>比如我定义过<strong>图片懒加载</strong>的指令。</p>
+<p>&nbsp;</p>
+<h3 id='26vue中的过滤器了解吗过滤器的应用场景有哪些'>26、Vue中的过滤器了解吗？过滤器的应用场景有哪些？</h3>
+<p>在vue，过滤器主要用来格式化显示数据的，过滤器不会修改数据，而是改变用户看到的输出</p>
+<p><strong>使用场景：</strong></p>
+<ul>
+<li>需要格式化数据的情况，比如需要处理时间、价格等数据格式的输出显示。</li>
+<li>比如后端返回一个 <strong>年月日的日期字符串</strong>，前端需要展示为 <strong>多少天前</strong> 的数据格式，此时就可以用过滤器来处理数据。</li>
+
+</ul>
+<p>过滤器是一个函数，它会把表达式中的值始终当作函数的第一个参数。过滤器用在<strong>插值表达式 *<em><code>{{ }}</code> 和 <code>v-bind</code>*</em> 表达式</strong> 中，然后放在操作符“ <code>|</code> ”后面进行指示。</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3 id='27什么是虚拟dom如何实现一个虚拟dom说说你的思路'>27、什么是虚拟DOM？如何实现一个虚拟DOM？说说你的思路</h3>
+<p><strong>概念：</strong></p>
+<p>虚拟DOM其实就是一个描述DOM的js对象。我们知道DOM的属性非常多，有将近300个吧。那频繁操作DOM代价就会比较大，非常耗时。</p>
+<p><strong>原理：</strong></p>
+<p>比如说：</p>
+<p>你用传统的原生去操作<code>DOM</code>时，需要更新10个<code>DOM</code>节点，浏览器没收到第一个更新<code>DOM</code>请求后，并不知道后续还有9次更新操作，因此会马上执行流程，最终执行10次流程</p>
+<p>而通过虚拟DOM，同样更新10个<code>DOM</code>节点，虚拟<code>DOM</code>不会立即操作<code>DOM</code>，而是将这10次更新合并成一次，那速度就快很多了。</p>
+<p><strong>实现：</strong></p>
+<p>它的核心无非就几个关键属性，标签名、数据、子节点等。</p>
+<p>简单写一个,定一个对象，然后记录他的标签名，属性，还有子元素等</p>
+<pre><code class='language-json' lang='json'>{
+  tagname:&quot;div&quot;,
+  attrs:[&quot;id&quot;,&quot;class&quot;],
+  textNode:&quot;&quot;,
+  children:[
+    {
+      tagname:&quot;h1&quot;,
+      attrs:[&quot;class&quot;],
+      textNode:&quot;hello world&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong>虚拟DOM的好处：</strong></p>
+<ul>
+<li>将真实元素节点抽象成 VNode，有效减少直接操作 dom 次数，从而提高程序性能</li>
+<li>方便实现跨平台，针对不同的平台，渲染成不同的控件。</li>
+
+</ul>
+<p>&nbsp;</p>
+<h3 id='你了解vue的diff算法吗说说看'>你了解vue的diff算法吗？说说看</h3>
+<p>diff算法我简单了解一点</p>
+<p>组件更新核心是响应式数据监控到数据的改变，重新生成了虚拟dom树，然后通过diff算法计算出前后虚拟dom树的差异点，更新dom时只更新变化的部分。</p>
+<p>它其有两个特点：</p>
+<ul>
+<li>比较只会在同层级进行, 不会跨层级比较，然后采用深度优先的策略</li>
+<li>在diff比较的过程中，循环从两边向中间比较</li>
+
+</ul>
+<p><a href='https://juejin.cn/post/7097067108663558151#heading-47'>你了解diff算法吗？</a></p>
+<p>&nbsp;</p>
+<h3 id='29vue项目中有封装过axios吗主要是封装哪方面的'>29、Vue项目中有封装过axios吗？主要是封装哪方面的？</h3>
+<p>有封装过。</p>
+<p><strong>主要封装设置请求头，超时时间等</strong>。</p>
+<p><strong>可以通过axios.create方法创建axios实例。然后设置请求头、超时时间、接口前缀等</strong>。</p>
+<pre><code class='language-javascript' lang='javascript'>const service = axios.create({
+  baseURL: &quot;http://localhost:3000&quot;, // 接口前缀
+  timeout: 5000 // 请求超时时间
+})
+</code></pre>
+<p><strong>然后通过拦截器设置请求头和响应头：</strong></p>
+<p><strong>在请求头中添加token，这样请求的时候，就会自动携带token到后端</strong>。</p>
+<pre><code class='language-javascript' lang='javascript'>service.interceptors.request.use(
+  config =&gt; {
+    if (store.getters.token) {
+      config.headers[&#39;Authorization&#39;] = getToken()
+    }
+    return config
+  },
+  error =&gt; {
+    return Promise.reject(error)
+  }
+)
+</code></pre>
+<p>在<strong>响应头中可以根据响应的数据，自动显示相应的提示</strong>：</p>
+<pre><code class='language-javascript' lang='javascript'>
+// response interceptor
+service.interceptors.response.use(
+  response =&gt; {
+    const res = response.data
+    if (res.code !== 200) {
+      Message({
+        message: res.message || &#39;Error&#39;,
+        type: &#39;error&#39;,
+        duration: 5 * 1000
+      })
+
+      return Promise.reject(new Error(res.message || &#39;Error&#39;))
+    } else {
+      return res
+    }
+  }
+)
+</code></pre>
+<p><strong>然后在api.js中引入，再进一步封装接口</strong>：</p>
+<pre><code class='language-javascript' lang='javascript'>import request from &#39;@/utils/request&#39;
+
+export function login(data) {
+  return request({
+    url: &#39;api/login&#39;,
+    method: &#39;post&#39;,
+    data
+  })
+}
+</code></pre>
+<p><strong>这样就可以把<code>api</code>统一管理起来</strong>，以后维护修改只需要在<code>api.js</code>文件操作就行了。</p>
+<p>&nbsp;</p>
+<h3 id='30你了解axios的原理吗有看过它的源码吗'>30、你了解axios的原理吗？有看过它的源码吗？</h3>
+<p>axios其实就是promis封装的ajax，我有自己使用promis封装过ajax。</p>
+<p>&nbsp;</p>
+<h3 id='31说下你的vue项目的目录结构如果是大型项目你该怎么划分结构和划分组件呢'>31、说下你的vue项目的目录结构，如果是大型项目你该怎么划分结构和划分组件呢？</h3>
+<p>在src下，主要有这么几个目录：</p>
+<ul>
+<li>api： 接口文件</li>
+<li>components：公共的组件，比如header组件</li>
+<li>constant：常量文件</li>
+<li>utils：放一些工具函数</li>
+<li>directives：放全局的自定义指令</li>
+<li>views：放页面组件，每一个页面也都单独定位成一级目录，目录里放页面的根组件和相关组件</li>
+<li>layout：放整体布局组件</li>
+<li>router：放路由</li>
+<li>store：放状态管理的文件</li>
+<li>styles：放公共的样式文件，包括reset.css,公共样式，动画等</li>
+
+</ul>
+<p>&nbsp;</p>
+<h3 id='32vue要做权限管理该怎么做如果控制到按钮级别的权限怎么做'>32、vue要做权限管理该怎么做？如果控制到按钮级别的权限怎么做？</h3>
+<p>权限管理一般需求是<strong>页面权限</strong>和<strong>按钮权限</strong>的管理</p>
+<p>具体实现的时候分后端和前端两种方案：</p>
+<p>前端方案会<strong>把所有路由信息在前端配置</strong>，通过路由守卫要求用户登录，用户<strong>登录后根据角色过滤出路由表</strong>。比如我会配置一个<code>asyncRoutes</code>数组，需要认证的页面在其路由<strong>的<code>meta</code>中添加一个<code>roles</code>字</strong>段，等获取用户角色之后取两者的交集，若结果不为空则说明可以访问。此过滤过程结束，剩下的路由就是该用户能访问的页面，<strong>最后通过<code>router.addRoutes(accessRoutes)</code>方式动态添加路由</strong>即可。</p>
+<p>后端方案会<strong>把所有页面路由信息存在数据库</strong>中，用户登录的时候根据其角色<strong>查询得到其能访问的所有页面路由信息</strong>返回给前端，前端<strong>再通过<code>addRoutes</code>动态添加路由</strong>信息</p>
+<p>按钮权限的控制通常会<strong>实现一个指令</strong>，例如<code>v-permission</code>，<strong>将按钮要求角色通过值传给v-permission指令</strong>，在指令的<code>moutned</code>钩子中可以<strong>判断当前用户角色和按钮是否存在交集</strong>，有则保留按钮，无则移除按钮。</p>
+<p>纯前端方案的优点是实现简单，不需要额外权限管理页面，但是维护起来问题比较大，有新的页面和角色需求就要修改前端代码重新打包部署；服务端方案就不存在这个问题，通过专门的角色和权限管理页面，配置页面和按钮权限信息到数据库，应用每次登陆时获取的都是最新的路由信息，可谓一劳永逸！</p>
+<p>&nbsp;</p>
+<h3 id='vue项目中你是如何解决跨域的呢'>Vue项目中你是如何解决跨域的呢？</h3>
+<ul>
+<li>jsonp</li>
+<li>CORS</li>
+<li>代理</li>
+
+</ul>
+<p>CORS 后端设置响应头，允许跨域。</p>
+<p>代理的话，在开发阶段，可以在vue.config.js 中配置devServer</p>
+<pre><code class='language-javascript' lang='javascript'>module.exports = {
+    devServer: {
+        host: &#39;127.0.0.1&#39;,
+        port: 8084,
+        open: true,// vue项目启动时自动打开浏览器
+        proxy: {
+            &#39;/api&#39;: { // &#39;/api&#39;是代理标识，用于告诉node，url前面是/api的就是使用代理的
+                target: &quot;http://xxx.xxx.xx.xx:8080&quot;, //目标地址，一般是指后台服务器地址
+                changeOrigin: true, //是否跨域
+                pathRewrite: { // pathRewrite 的作用是把实际Request Url中的&#39;/api&#39;用&quot;&quot;代替
+                    &#39;^/api&#39;: &quot;&quot; 
+                }
+            }
+        }
+    }
+}
+</code></pre>
+<p>生产环境的话，一般是在nginx服务器上配置反向代理。</p>
+<p>&nbsp;</p>
+<h3 id='34vue项目本地开发完成后部署到服务器后报404是什么原因呢'>34、vue项目本地开发完成后部署到服务器后报404是什么原因呢？</h3>
+<p>主要是<strong>因为采用了history路由的原因</strong>。</p>
+<p>由于我们做的是SPA<strong>单页应用，打包完就只有一个index.html文件。nginx的配置在访问域名时，就会打开项目目录下的index.html文件。而如果地址栏不是index.html，就会报错了，因为没有哪个文件嘛</strong>。</p>
+<p>解决办法也很简单，就是<strong>修改配置，让访问任意页面的时候，都重定向到index.html,把路由交给前端来处理</strong>。</p>
+<p>而hash路由就不会有问题。因为hash值的改变，不会发起http请求，不会重新加载页面。</p>
+<p>&nbsp;</p>
+<h3 id='35你是怎么处理vue项目中的错误的'>35、你是怎么处理vue项目中的错误的？</h3>
+<p>常见的错误主要有两种，接口错误和代码错误。</p>
+<p>如果是<strong>接口的错误，可以在axios使用拦截器，拦截响应，根据状态码进行响应的处理</strong>。</p>
+<p>如果是代码的错误，可以用<strong>Vue.config.errorHandler</strong>定义全局的处理函数。</p>
+<pre><code>Vue.config.errorHandler = function (err, vm, info) {
+   //在这里做错误处理
+}
+</code></pre>
+<p>&nbsp;</p>
+<h3 id='36vue3有了解过吗能说说跟vue2的区别吗'>36、vue3有了解过吗？能说说跟vue2的区别吗？</h3>
+<p>有了解过。</p>
+<p>首先：</p>
+<p><strong>vue3更新了数据绑定的方式</strong>。在<strong>vue2中使用的是Object.definedProperty</strong>方法。</p>
+<p>vue2的问题是：</p>
+<ul>
+<li>检测不到对象属性的添加和删除</li>
+<li>数组<code>API</code>方法无法监听到</li>
+<li>需要对每个属性进行遍历监听，如果嵌套对象，需要深层监听，造成性能问题</li>
+
+</ul>
+<p><strong>Vue3改成了Proxy（代理）</strong>。</p>
+<p><code>Proxy</code>的监听是针对一个对象的，对这个对象的所有操作会进入监听操作，这样就完全可以代理所有属性了。</p>
+<p>第二：</p>
+<p><strong>Vue3新增了组合式API（Composition API）</strong></p>
+<p>相对于Vue2来说，可以提高代码的复用性。在逻辑组织和逻辑复用方面优于vue2的。Option API</p>
+<p>新的<strong>setup语法糖</strong>，更加方便写组合api了。</p>
+<p>第三：</p>
+<p>还有就是增加了<strong>Treeshaking</strong>，可以去除无用的代码，减小代码体积。基本原理是：</p>
+<ul>
+<li>编译阶段利用<code>ES6 Module</code>判断哪些模块已经加载</li>
+<li>判断哪些模块和变量未被使用或者引用，进而删除对应代码</li>
+
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3 id='vue30-所采用的-composition-api-与-vue2x-使用的-options-api-有什么不同'>Vue3.0 所采用的 Composition Api 与 Vue2.x 使用的 Options Api 有什么不同？</h3>
+<p><code>Composition API</code>是一组API，包括：<strong>Reactivity(响应式) API、生命周期钩子，使用户可以通过导入函数方式编写vue组件</strong>。而<code>Options API</code>则通过声明组件选项的对象形式编写组件。</p>
+<p><code>Composition API</code>最主要作用是能够<strong>简洁、高效复用逻辑</strong>。解决了过去<code>Options API</code>中<code>mixins</code>的各种缺点；**</p>
+<p>另外<code>Composition API</code>具有<strong>更加敏捷的代码组织能力</strong>，很多用户喜欢<code>Options API</code>，认为所有东西都有固定位置的选项放置代码，但是单个组件增长过大之后这反而成为限制，一个逻辑关注点分散在组件各处，形成代码碎片，维护时需要反复横跳，<code>Composition API</code>则可以将它们有效组织在一起。</p>
+<p>最后<code>Composition API</code>拥有<strong>更好的类型推断</strong>，对ts支持更友好，<code>Options API</code>在设计之初并未考虑类型推断因素，虽然官方为此做了很多复杂的类型体操，确保用户可以在使用<code>Options API</code>时获得类型推断，然而还是没办法用在mixins和provide/inject上。</p>
+<p>Vue3首推<code>Composition API</code>，但是这会让我们在代码组织上多花点心思，因此在选择上，如果我们项目属于<strong>中低复杂度的场景</strong>，<code>Options API</code>仍是一个好选择。对于那些<strong>大型，高扩展，强维护</strong>的项目上，<code>Composition API</code>会获得更大收益。</p>
+<p>&nbsp;</p>
+<h3 id='说说vue-30中treeshaking摇树）特性举例说明一下'>说说Vue 3.0中Treeshaking（摇树）特性？举例说明一下？</h3>
+<p><strong>概念：</strong></p>
+<p>基于ES6提供的模块系统对代码进行静态分析,并将代码中的死代码（dead code)移除的一种技术。因此，利用Tree Shaking技术可以很方便地实现我们代码上的优化，减少代码体积。</p>
+<p>&nbsp;</p>
+<p><strong>摇树删除代码的原理：</strong> webpack基于ES6提供的模块系统，对代码的依赖树进行静态分析，把import &amp; export标记为3类：</p>
+<ul>
+<li>所有import标记为/* harmony import */</li>
+<li>被使用过的export标记为/harmony export([type])/，其中[type]和webpack内部有关，可能是binding，immutable等；</li>
+<li>没有被使用的export标记为/* unused harmony export [FuncName] */，其中[FuncName]为export的方法名，之后使用Uglifyjs（或者其他类似的工具）进行代码精简，把没用的都删除。</li>
+
+</ul>
+<p>&nbsp;</p>
+<p><strong>条件：</strong></p>
+<ol start='' >
+<li>首先源码必须遵循 ES6 的模块规范 (import &amp; export)，如果是 CommonJS 规范 (require) 则无法使用。</li>
+<li>编写的模块代码不能有副作用，如果在代码内部改变了外部的变量则不会被移除。</li>
+
+</ol>
+<p>&nbsp;</p>
+<p><strong>使用方法</strong>：</p>
+<p>可以在webpack中配置</p>
+<pre><code>  usedExports: true,
+  minimize: true, // 自动压缩代码 负责摇掉枯树叶
+</code></pre>
+<p>这样在生产模式下会自动启动。</p>
+<p>&nbsp;</p>
+<p><strong>使用摇树的注意事项：</strong></p>
+<ol start='' >
+<li>使用 ES6 模块语法编写代码</li>
+<li>工具类函数尽量以单独的形式输出，不要集中成一个对象或者类</li>
+<li>声明 sideEffects</li>
+<li>自己在重构代码时也要注意副作用</li>
+
+</ol>
+<p>&nbsp;</p>
+<h3 id='39用vue30-写过组件吗如果想实现一个-modal你会怎么设计'>39、用Vue3.0 写过组件吗？如果想实现一个 Modal你会怎么设计？</h3>
+<p><a href='https://vue3js.cn/interview/vue3/modal_component.html' target='_blank' class='url'>https://vue3js.cn/interview/vue3/modal_component.html</a></p>
+<p>&nbsp;</p>
+<h3 id='40实际工作中你总结的vue最佳实践有哪些'>40、实际工作中，你总结的vue最佳实践有哪些？</h3>
+<ol start='' >
+<li><p>编码风格方面：</p>
+<ul>
+<li>命名组件时使用“多词”风格避免和HTML元素冲突</li>
+<li>使用“细节化”方式定义属性而不是只有一个属性名</li>
+<li>属性名声明时使用“驼峰命名”，模板或jsx中使用“肉串命名”</li>
+<li>使用v-for时务必加上key，且不要跟v-if写在一起</li>
+
+</ul>
+</li>
+<li><p>性能方面：</p>
+<ul>
+<li>路由懒加载减少应用尺寸</li>
+<li>利用SSR减少首屏加载时间</li>
+<li>利用v-once渲染那些不需要更新的内容</li>
+<li>一些长列表可以利用虚拟滚动技术避免内存过度占用</li>
+<li>对于深层嵌套对象的大数组可以使用shallowRef或shallowReactive降低开销</li>
+<li>避免不必要的组件抽象</li>
+
+</ul>
+</li>
+<li><p>安全：</p>
+</li>
+
+</ol>
+<ul>
+<li>不使用不可信模板，例如使用用户输入拼接模板：<code>template: &lt;div&gt; + userProvidedString + &lt;/div&gt;</code></li>
+<li>小心使用v-html，:url，:style等，避免html、url、样式等注入</li>
+
+</ul>
+<p>&nbsp;</p>
+<h3 id='41vue路由的原理'>41、vue路由的原理</h3>
+<p>路由是⽤来实现单⻚⾯应⽤的。</p>
+<p>vue的路由的话主要是基于hash哈希路由和history api的路由。</p>
+<p>hash路由其实就是锚点链接，哈希值的改变不会引起⻚⾯跳转。所以我们 可以给 链接点添加哈希值，也就是写个井号，然后当哈希值改变的时候， 通过readyStateChange 事件去监听哈希指的改变，然后根据哈希值去更 细⻚⾯。</p>
+<p>第⼆种是history路由。也就是通过 history的⽅法pushState去改变路 径。它也可以改变路径⽽且不会引起⻚⾯跳转。哈希路由会有404的问题。 需要服务器做重定向的处理。</p>
+<h3 id='42说说vuex的理解或者说vuex怎么-⽤的'>42、说说Vuex的理解，或者说Vuex怎么 ⽤的</h3>
+<p>vuex是⼀个专为vue.js应⽤程序开发的状态管理的库，vuex有五个核⼼属 性：state，getter，mutation，action，module。</p>
+<p>其中state是⽤来保存状态的，getter类似组件中的计算属性，可以实现对 state的过滤。修改状态的话需要通过 提交 mutation来实现。action⾥异 步操作，⽐如http请求就可以在action中做。还有⼀个是module，它是将 store分成模块，每个模块都有⾃⼰的state、mutation、action，设置是嵌 套⼦模块。</p>
+<p>当数据修改时，通过dispatch来调⽤action，在action⾥再通过commit来 调⽤mutation。当状态发⽣改变，那么所有引⽤这个状态的组件的视图都 会发⽣更新。 但是，⼀般我们在⽐较复杂的情况下才回去⽤到vuex，如果只是简单的⽗ ⼦组件 传值或者兄弟组件 传值，其实⽤props、⾃定义事件或者是event bus就⾜够了。</p>
+<h3 id='43mvvm'>43、MVVM</h3>
+<p>MVVM其实表示的是 Model-View-ViewModel</p>
+<p>Model：模型层，负责处理业务逻辑以及和服务器端进⾏交互 View：视图层：负责将数据模型转化为UI展示出来，可以简单的理解为 HTML⻚⾯ ViewModel：视图模型层，⽤来连接Model和View，是Model和View之 间的通信桥梁</p>
+<p>在MVVM的架构下，View层和Model层并没有直接联系，⽽是通过 ViewModel层进⾏交互。 ViewModel层通过双向数据绑定将View层和 Model层连接了起来，使得View层和Model层的同步⼯作完全是⾃动的。 因此只需关注业务逻辑，⽆需⼿动操作DOM。</p>
+<p>vue其实就是个类似MVVM的框架。</p>
+<p>其中template就是view视图层。 data或者vuex的store就是Model层。然 后vue实例或者组件对象是VM层。</p>
+<p>负责 View 和 Model 之间通信的桥梁。咱们在使⽤ Vue 框开发的时候，只 需要关⼼ View 层的 视图层 代码和 数据层的 JavaScript 逻辑就可以了。</p>
+<h4 id='44v-model的原理'>44、v-model的原理</h4>
+<p>v-model只不过是⼀个语法糖⽽已,真正的实现靠的还是</p>
+<p>v-bind:绑定input的value属性来给他设置值 然后监听input事件或者change事件来获取输⼊框的值</p>
+<h3 id='45有单独负责过项⽬吗有没有⾃⼰搭-建过项⽬'>45、有单独负责过项⽬吗，有没有⾃⼰搭 建过项⽬</h3>
+<p>搭建过。如果现在现在让我搭建的话，我会选择⽐较新的技术。 技术栈选择TS + Vue3 + vite + Pinia 来搭建。我⼤概说⼀下流程吧 </p>
+<p>⾸先使⽤vite⽣成项⽬，执⾏⼀个命令：</p>
+<pre><code>npm create vite@latest
+</code></pre>
+<p>然后选择vue、ts。 </p>
+<p>2、等项⽬⽣成好了之后，安装eslint,统⼀代码的⻛格。具体配置使⽤之前 的配置⽂件拿来改⼀下或者去查看官⽅⽂档。 </p>
+<p>3、然后还会安装 prettier 进⾏代码的⾃动格式化 </p>
+<p>4、然后安装路由 vue-router,使⽤createRouter创建路由，在main.ts中引 ⽤。路由的配置这⾥，我会⽤ import 函数实现路由组件的动态加载。 </p>
+<p>5、接下安装状态管理。我会选择使⽤Pinia，⽤vuex也⾏。都差不多。安 装好了之后在在根⽬录创建store⽂件夹，然后在⾥⾯创建store。 </p>
+<p>6、样式的话，我会选⽤scss</p>
+<p> 7、⽹络请求⼀般都会使⽤axios。我会对axios进⾏⼀些封装。⼀般是在根 ⽬录下创建个utils的⽬录，在⾥⾯去封装axios。主要是封装⼀些请求头， ⽐如接⼝前缀，超时时间，拦截器等。 然后再创建个api的⽬录，⽤来封装接⼝。 </p>
+<p>8、组件库的话，如果是做后台管理系统，会使⽤Element-Plus，按照步骤 就安装他官⽹的步骤去配置。 差不多就是这样。</p>
+<h3 id='46eslint⽤过吗eslint常⽤配置'>46、eslint⽤过吗？eslint常⽤配置</h3>
+<p>eslint是⼀个代码规范的检测⼯具，使⽤eslint可以避免⼀些低级错误⽽且 课统⼀代码规范。 安装好后，在项⽬的根⽬录下会有⼀个.eslintrc.js 的配置⽂件。在这个配 置⽂件中可以设置⼀些规则。</p>
+<p> 这些规则的等级有三种 off表示关闭，warn表示警告，error表示错误。 如果在代码中希望关闭eslint的检测，可以使⽤注释：</p>
+<pre><code>/* eslint-disable */
+</code></pre>
+<p>常⻅的eslint的配置项有</p>
+<ul>
+<li>&quot;no-console&quot;: 2, //不允许出现console语句</li>
+<li> &quot;no-debugger&quot;:  //不允许出现debugger语句</li>
+<li> &quot;no-empty&quot;: //不允许出现空的代码块 </li>
+<li>&quot;no-extra-semi&quot;: //不允许出现不必要的分号</li>
+<li> &quot;no-obj-calls&quot;: //不允许把全局对象属性当做函数来调⽤</li>
+<li> &quot;no-regex-spaces&quot;:  //正则表达式中不允许出现多个连续空格</li>
+<li> &quot;quote-props&quot;: //对象中的属性名是否需要⽤引号引起来</li>
+<li> &quot;no-sparse-arrays&quot;: //数组中不允许出现空位置</li>
+<li> &quot;no-unreachable&quot;:  //在return，throw，continue，break语句 后不允许出现不可能到达的语句</li>
+
+</ul>
+<p><a href='https://blog.csdn.net/qq_33081841/article/details/88575729' target='_blank' class='url'>https://blog.csdn.net/qq_33081841/article/details/88575729</a></p>
+<p>官⽹配合⽂档：<a href='https://eslint.org/docs/latest/rules/' target='_blank' class='url'>https://eslint.org/docs/latest/rules/</a></p>
+<h3 id='47如何打包上线⼀个项⽬'>47、如何打包上线⼀个项⽬</h3>
+<p>打包的话，执⾏ npm run build命令就可以打包了，会⽣成⼀个dist⽬录。 dist⽬录部署到服务器上就可以了。</p>
+<p>服务器⽤的是nginx服务器。⽤ftp把本地的代码上传到nginx服务器的项⽬ 下，把nginx启动起来就⾏了。</p>
+<p>&nbsp;</p>
+</body>
+</html>
